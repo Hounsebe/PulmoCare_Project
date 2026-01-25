@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulmoCare - Authentification</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; }
+        .login-container { margin-top: 10%; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .btn-primary { background-color: #007bff; border: none; }
+        .medical-logo { color: #007bff; font-weight: bold; font-size: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container login-container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card p-4">
+                    <div class="text-center mb-4">
+                        <span class="medical-logo">PulmoCare 🫁</span>
+                        <p class="text-muted">Système de Diagnostic Intelligent</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Identifiant</label>
+                            <input type="text" name="username" class="form-control" placeholder="Nom d'utilisateur" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">Mot de passe</label>
+                            <input type="password" name="password" class="form-control" placeholder="********" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 py-2">Se connecter</button>
+                    </form>
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger mt-3">
+                            Identifiants incorrects. Veuillez réessayer.
+                        </div>
+                    {% endif %}
+                </div>
+                <p class="text-center mt-4 text-muted small">&copy; 2026 PulmoCare Omni-Clinic</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
