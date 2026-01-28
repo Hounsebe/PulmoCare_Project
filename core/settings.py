@@ -92,3 +92,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'administration.Utilisateur'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+# Limite le poids des fichiers à 50 Mo (adaptable selon tes scanners)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800 
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800

@@ -1,0 +1,13 @@
+PulmoCare/
+├── core/                 # Le routeur (Gateway)
+│   ├── settings.py       # (Celui que tu viens d'envoyer)
+│   └── urls.py           # À modifier (voir ci-dessous)
+├── administration/       # SERVICE 1 : Identité & SSO
+│   ├── models.py         # Contient Utilisateur et Patient
+│   └── views.py          # Login et Admin Dashboard
+├── consultation/         # SERVICE 2 : Clinique & Suivi
+│   └── views.py          # Dashboard Médecin
+├── radiologie_ia/        # SERVICE 3 : Analyse & IA
+│   └── views.py          # Dashboard Radiologue + Upload
+├── media/                # Stockage partagé des scanners
+└── templates/            # Frontend partagé

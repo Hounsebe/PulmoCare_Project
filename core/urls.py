@@ -1,37 +1,29 @@
-"""
-URL configuration for core project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
-from administration.views import (
-    ConnexionClinique, 
-    dashboard_admin, 
-    dashboard_consultation, 
-    dashboard_radiologie
-)
+from django.conf import settings
+from django.conf.urls.static import static
+
+# Importation segmentée par service
+from administration.views import ConnexionClinique, dashboard_admin
+from consultation.views import dashboard_consultation
+from radiologie_ia.views import dashboard_radiologie
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', ConnexionClinique.as_view(), name='login'),
     
-    # Chemins de redirection
+    # SERVICE AUTH (Administration)
+    path('login/', ConnexionClinique.as_view(), name='login'),
     path('dashboard/admin/', dashboard_admin, name='dashboard_admin'),
+    
+    # SERVICE CLINIQUE (Consultation)
     path('dashboard/medecin/', dashboard_consultation, name='dashboard_consultation'),
+    
+    # SERVICE DIAGNOSTIC (Radiologie IA)
     path('dashboard/radiologie/', dashboard_radiologie, name='dashboard_radiologie'),
     
-    # Inclusion des URLs par défaut de l'auth (logout, etc.)
     path('accounts/', include('django.contrib.auth.urls')),
 ]
+
+# SOA : Permettre l'accès partagé aux images scanner
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
