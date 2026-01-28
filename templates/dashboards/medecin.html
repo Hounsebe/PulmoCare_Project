@@ -25,7 +25,7 @@
                     <tbody>
                         {% for patient in patients %}
                         <tr>
-                            <td><span class="badge bg-dark">P-{{ patient.code_anonymne }}</span></td>
+                            <td><span class="badge bg-dark">P-{{ patient.code_anonyme }}</span></td>
                             <td><strong class="text-uppercase">{{ patient.nom }}</strong> {{ patient.prenom }}</td>
                             <td>{{ patient.date_creation|date:"d/m/Y" }}</td>
                             <td>

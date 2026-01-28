@@ -6,7 +6,8 @@ from django.conf.urls.static import static
 # Importation segmentée par service
 from administration.views import ConnexionClinique, dashboard_admin
 from consultation.views import dashboard_consultation
-from radiologie_ia.views import dashboard_radiologie
+# J'ajoute 'lancer_analyse' ici :
+from radiologie_ia.views import dashboard_radiologie, lancer_analyse
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,6 +21,10 @@ urlpatterns = [
     
     # SERVICE DIAGNOSTIC (Radiologie IA)
     path('dashboard/radiologie/', dashboard_radiologie, name='dashboard_radiologie'),
+    
+    # --- LA LIGNE MANQUANTE CI-DESSOUS ---
+    # Cette route permet de traiter un scan spécifique via son ID (UUID)
+    path('dashboard/radiologie/analyser/<uuid:scan_id>/', lancer_analyse, name='lancer_analyse'),
     
     path('accounts/', include('django.contrib.auth.urls')),
 ]
