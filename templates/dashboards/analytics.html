@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    /* Style pour que l'impression soit propre */
+    @media print {
+        .btn, .no-print {
+            display: none !important;
+        }
+        .card {
+            border: none !important;
+            shadow: none !important;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-print">
+        <h2 class="text-secondary"><i class="bi bi-graph-up-arrow"></i> Analyses Statistiques</h2>
+        <div class="d-flex gap-2">
+            <button onclick="window.print();" class="btn btn-success shadow-sm">
+                <i class="bi bi-printer"></i> Imprimer le Rapport
+            </button>
+            <a href="{% url 'dashboard_radiologie' %}" class="btn btn-outline-primary shadow-sm">
+                <i class="bi bi-arrow-left"></i> Retour au Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title text-primary d-flex justify-content-between">
+                        <span><i class="bi bi-activity"></i> Évolution du flux (7 derniers jours)</span>
+                        <small class="text-muted fs-6">Généré le {% now "d/m/Y H:i" %}</small>
+                    </h5>
+                    <hr>
+                    <div style="height: 450px; position: relative;">
+                        <canvas id="scansChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('scansChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ jours_labels|safe }},
+                datasets: [{
+                    label: 'Volume de scans quotidiens',
+                    data: {{ donnees_scans|safe }},
+                    borderColor: '#0d6efd',
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 6,
+                    pointBackgroundColor: '#0d6efd',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        ticks: { stepSize: 1 },
+                        title: { display: true, text: 'Nombre de Scanners' }
+                    },
+                    x: {
+                        title: { display: true, text: 'Dates (7 derniers jours)' }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

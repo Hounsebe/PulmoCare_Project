@@ -6,8 +6,13 @@ from django.conf.urls.static import static
 # Importation segmentée par service
 from administration.views import ConnexionClinique, dashboard_admin
 from consultation.views import dashboard_consultation
-# J'ajoute 'lancer_analyse' ici :
-from radiologie_ia.views import dashboard_radiologie, lancer_analyse
+
+# Importations pour le service Radiologie (On ajoute analytique_radiologie)
+from radiologie_ia.views import (
+    dashboard_radiologie, 
+    lancer_analyse, 
+    analytique_radiologie
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,15 +25,18 @@ urlpatterns = [
     path('dashboard/medecin/', dashboard_consultation, name='dashboard_consultation'),
     
     # SERVICE DIAGNOSTIC (Radiologie IA)
+    # 1. Le Dashboard principal (Tableau)
     path('dashboard/radiologie/', dashboard_radiologie, name='dashboard_radiologie'),
     
-    # --- LA LIGNE MANQUANTE CI-DESSOUS ---
-    # Cette route permet de traiter un scan spécifique via son ID (UUID)
+    # 2. La page des statistiques (Graphique)
+    path('dashboard/radiologie/stats/', analytique_radiologie, name='analytique_radiologie'),
+    
+    # 3. Action de traitement IA
     path('dashboard/radiologie/analyser/<uuid:scan_id>/', lancer_analyse, name='lancer_analyse'),
     
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 
-# SOA : Permettre l'accès partagé aux images scanner
+# Accès aux images scanner (Média)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

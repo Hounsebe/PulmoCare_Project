@@ -1,22 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-secondary"><i class="bi bi-shield-lock"></i> Service de Diagnostic (Anonymisé)</h2>
-        <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Déconnexion</a>
+        <h2 class="text-secondary"><i class="bi bi-shield-lock"></i> Service de Diagnostic</h2>
+        <div class="d-flex gap-2">
+            <a href="{% url 'analytique_radiologie' %}" class="btn btn-info text-white shadow-sm">
+                <i class="bi bi-graph-up"></i> Tendances IA
+            </a>
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Déconnexion</a>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 border-top border-primary border-4 text-center p-3">
+                <small class="text-muted fw-bold">SCANS DU JOUR</small>
+                <h3 class="fw-bold">{{ stats.total_aujourdhui }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 border-top border-warning border-4 text-center p-3">
+                <small class="text-muted fw-bold">À ANALYSER</small>
+                <h3 class="fw-bold text-warning">{{ stats.non_analyses }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 border-top border-success border-4 text-center p-3">
+                <small class="text-muted fw-bold">CAS BÉNINS</small>
+                <h3 class="fw-bold text-success">{{ stats.benins }}</h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 border-top border-danger border-4 text-center p-3">
+                <small class="text-muted fw-bold">ALERTES IA</small>
+                <h3 class="fw-bold text-danger">{{ stats.alertes }}</h3>
+            </div>
+        </div>
     </div>
 
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-dark text-white">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">File d'Attente des Analyses</h5>
+            <span class="badge bg-secondary">{{ scans.count }} scan(s)</span>
         </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Code Patient</th>
+                            <th>Patient</th>
                             <th>Date du Scan</th>
                             <th class="text-center">Score IA</th>
                             <th class="text-center">Action</th>
@@ -26,25 +59,23 @@
                         {% for scan in scans %}
                         <tr>
                             <td><strong class="text-primary">{{ scan.patient.code_anonyme }}</strong></td>
-                            <td>{{ scan.date_upload|date:"d/m/Y" }}</td>
+                            <td>{{ scan.date_upload|date:"d/m/Y H:i" }}</td>
                             <td class="text-center">
                                 {% if scan.resultat %}
-                                    <span class="badge {% if scan.resultat.score_malignite > 0.6 %}bg-danger{% else %}bg-success{% endif %}">
-                                        Score: {{ scan.resultat.score_malignite }}
+                                    <span class="badge {% if scan.resultat.score_malignite > 0.6 %}bg-danger{% else %}bg-success{% endif %} px-3">
+                                        {{ scan.resultat.score_malignite }}
                                     </span>
                                 {% else %}
-                                    <span class="badge bg-secondary">Non analysé</span>
+                                    <span class="badge bg-light text-dark border">Attente</span>
                                 {% endif %}
                             </td>
                             <td class="text-center">
-                                <a href="{% url 'lancer_analyse' scan.id_scan %}" class="btn btn-primary btn-sm">
-                                    <i class="bi bi-cpu"></i> Analyser
-                                </a>
+                                {% if not scan.resultat %}
+                                    <a href="{% url 'lancer_analyse' scan.id_scan %}" class="btn btn-primary btn-sm">Analyser</a>
+                                {% else %}
+                                    <button class="btn btn-sm btn-outline-secondary" disabled>Traité</button>
+                                {% endif %}
                             </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-4">Aucun scan trouvé en base de données.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
