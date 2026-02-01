@@ -3,11 +3,17 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
-# Importation segmentée par service
+# 1. Importations pour le service ADMINISTRATION / AUTH
 from administration.views import ConnexionClinique, dashboard_admin
-from consultation.views import dashboard_consultation
 
-# Importations pour le service Radiologie (On ajoute analytique_radiologie)
+# 2. Importations pour le service CLINIQUE (Consultation)
+from consultation.views import (
+    dashboard_consultation, 
+    effectuer_consultation,
+    detail_patient  # <--- AJOUTÉ ICI
+)
+
+# 3. Importations pour le service DIAGNOSTIC (Radiologie IA)
 from radiologie_ia.views import (
     dashboard_radiologie, 
     lancer_analyse, 
@@ -17,26 +23,25 @@ from radiologie_ia.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # SERVICE AUTH (Administration)
+    # --- SERVICE AUTH & ADMIN ---
     path('login/', ConnexionClinique.as_view(), name='login'),
     path('dashboard/admin/', dashboard_admin, name='dashboard_admin'),
     
-    # SERVICE CLINIQUE (Consultation)
+    # --- SERVICE CLINIQUE (Médecin) ---
     path('dashboard/medecin/', dashboard_consultation, name='dashboard_consultation'),
+    path('dashboard/medecin/consulter/<int:rdv_id>/', effectuer_consultation, name='effectuer_consultation'),
+    # Correction de la ligne detail_patient (enlever "views.")
+    path('dashboard/medecin/patient/<uuid:patient_id>/', detail_patient, name='detail_patient'),
     
-    # SERVICE DIAGNOSTIC (Radiologie IA)
-    # 1. Le Dashboard principal (Tableau)
+    # --- SERVICE DIAGNOSTIC (Radiologie) ---
     path('dashboard/radiologie/', dashboard_radiologie, name='dashboard_radiologie'),
-    
-    # 2. La page des statistiques (Graphique)
     path('dashboard/radiologie/stats/', analytique_radiologie, name='analytique_radiologie'),
-    
-    # 3. Action de traitement IA
     path('dashboard/radiologie/analyser/<uuid:scan_id>/', lancer_analyse, name='lancer_analyse'),
     
+    # Auth Django par défaut
     path('accounts/', include('django.contrib.auth.urls')),
 ]
 
-# Accès aux images scanner (Média)
+# Accès aux fichiers MEDIA (Scanners) en développement
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

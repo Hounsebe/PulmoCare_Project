@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary"><i class="bi bi-file-earmark-medical"></i> Dossier Patient : {{ patient.nom_complet }}</h2>
+        <a href="{% url 'dashboard_consultation' %}" class="btn btn-secondary">Retour au Dashboard</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white">Identité</div>
+                <div class="card-body">
+                    <p><strong>Code :</strong> P-{{ patient.code_anonyme }}</p>
+                    <p><strong>Nom Complet :</strong> {{ patient.nom_complet|upper }}</p>
+                    <p><strong>Genre :</strong> {{ patient.get_genre_display }}</p>
+                    <p><strong>Né(e) le :</strong> {{ patient.date_naissance|date:"d/m/Y" }}</p>
+                    <hr>
+                    <p><strong>Inscrit le :</strong> {{ patient.date_creation|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white">Historique Clinique</div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-bs-toggle="tab" href="#scans">Imagerie ({{ patient.scans.count }})</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#rdv">Consultations</a>
+                        </li>
+                    </ul>
+                    
+                    <div class="tab-content p-3 border border-top-0">
+                        <div class="tab-pane fade show active" id="scans">
+                            {% for scan in patient.scans.all %}
+                                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                                    <span><i class="bi bi-camera"></i> Scan du {{ scan.date_upload|date:"d/m/Y" }}</span>
+                                    {% if scan.resultat %}
+                                        <span class="badge bg-{% if scan.resultat.score_malignite > 0.6 %}danger{% else %}info{% endif %}">
+                                            IA : {{ scan.resultat.score_malignite }} ({{ scan.resultat.interpretation_score }})
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Non analysé</span>
+                                    {% endif %}
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">Aucun scan disponible.</p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="tab-pane fade" id="rdv">
+                            {% for h in historique %}
+                                <div class="border-bottom py-2">
+                                    <strong>{{ h.date_rdv|date:"d/m/Y" }}</strong> : {{ h.notes_medicales|truncatewords:20|default:"Pas de notes disponibles" }}
+                                </div>
+                            {% empty %}
+                                <p class="text-muted">Aucune consultation passée enregistrée.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
