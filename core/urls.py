@@ -10,14 +10,15 @@ from administration.views import ConnexionClinique, dashboard_admin
 from consultation.views import (
     dashboard_consultation, 
     effectuer_consultation,
-    detail_patient  # <--- AJOUTÉ ICI
+    detail_patient
 )
 
 # 3. Importations pour le service DIAGNOSTIC (Radiologie IA)
 from radiologie_ia.views import (
     dashboard_radiologie, 
     lancer_analyse, 
-    analytique_radiologie
+    analytique_radiologie,
+    generer_rapport_pdf  # <--- AJOUTÉ ICI
 )
 
 urlpatterns = [
@@ -30,13 +31,15 @@ urlpatterns = [
     # --- SERVICE CLINIQUE (Médecin) ---
     path('dashboard/medecin/', dashboard_consultation, name='dashboard_consultation'),
     path('dashboard/medecin/consulter/<int:rdv_id>/', effectuer_consultation, name='effectuer_consultation'),
-    # Correction de la ligne detail_patient (enlever "views.")
     path('dashboard/medecin/patient/<uuid:patient_id>/', detail_patient, name='detail_patient'),
     
     # --- SERVICE DIAGNOSTIC (Radiologie) ---
     path('dashboard/radiologie/', dashboard_radiologie, name='dashboard_radiologie'),
     path('dashboard/radiologie/stats/', analytique_radiologie, name='analytique_radiologie'),
     path('dashboard/radiologie/analyser/<uuid:scan_id>/', lancer_analyse, name='lancer_analyse'),
+    
+    # --- GÉNÉRATION DE RAPPORT ---
+    path('dashboard/radiologie/pdf/<uuid:scan_id>/', generer_rapport_pdf, name='generer_pdf'), # <--- NOUVELLE ROUTE
     
     # Auth Django par défaut
     path('accounts/', include('django.contrib.auth.urls')),

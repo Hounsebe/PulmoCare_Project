@@ -2,98 +2,126 @@
 
 {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-primary"><i class="bi bi-person-badge"></i> Suivi Clinique des Patients</h2>
-        <div class="d-flex gap-2">
-            <span class="badge bg-primary d-flex align-items-center px-3">{{ nb_rdv }} RDV Aujourd'hui</span>
-            <a href="{% url 'logout' %}" class="btn btn-outline-danger btn-sm">Déconnexion</a>
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center py-3">
+            <h5 class="mb-0"><i class="bi bi-people"></i> Base de Données Patients</h5>
+            
+            <form method="GET" action="" class="d-flex">
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control form-control-sm" 
+                           placeholder="Nom ou code..." value="{{ search_query }}">
+                    <button class="btn btn-light btn-sm" type="submit">
+                        <i class="bi bi-search text-primary"></i>
+                    </button>
+                    {% if search_query %}
+                        <a href="{% url 'dashboard_consultation' %}" class="btn btn-light btn-sm border-start">
+                            <i class="bi bi-x-lg text-danger"></i>
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
         </div>
-    </div>
 
-    <div class="card shadow border-0 mb-5">
-        <div class="card-header bg-info text-white py-3">
-            <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Mes Rendez-vous du Jour</h5>
-        </div>
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
                     <thead class="table-light">
                         <tr>
-                            <th>Heure</th>
-                            <th>Patient</th>
-                            <th>Motif</th>
-                            <th>Statut</th>
-                            <th class="text-center">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for r in rdv %}
-                        <tr>
-                            <td><span class="fw-bold">{{ r.date_rdv|date:"H:i" }}</span></td>
-                            <td><strong class="text-uppercase">{{ r.patient.nom_complet }}</strong></td>
-                            <td><small class="text-muted">{{ r.motif|default:"Consultation générale" }}</small></td>
-                            <td>
-                                {% if r.statut == 'PREVU' %}
-                                    <span class="badge bg-warning text-dark">En attente</span>
-                                {% else %}
-                                    <span class="badge bg-success">{{ r.get_statut_display }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-center">
-                                <a href="{% url 'effectuer_consultation' r.id %}" class="btn btn-sm btn-primary px-3">Ouvrir Consultation</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Aucun rendez-vous prévu.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="card shadow border-0">
-        <div class="card-header bg-primary text-white py-3">
-            <h5 class="mb-0"><i class="bi bi-folder2-open"></i> Base de Données des Patients</h5>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Code Patient</th>
-                            <th>Identité</th>
-                            <th>Inscription</th>
-                            <th>Dossier Clinique</th>
-                            <th class="text-center">Actions</th>
+                            <th>Code</th>
+                            <th>Nom Complet</th>
+                            <th>Date d'Inscription</th>
+                            <th class="text-center">Dossier</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for patient in patients %}
                         <tr>
-                            <td><span class="badge bg-dark">P-{{ patient.code_anonyme }}</span></td>
-                            <td><strong class="text-uppercase">{{ patient.nom_complet }}</strong></td>
-                            <td>{{ patient.date_creation|date:"d/m/Y" }}</td>
+                            <td><span class="badge bg-secondary">P-{{ patient.code_anonyme }}</span></td>
                             <td>
-                                <span class="badge rounded-pill bg-light text-dark border">Consultable</span>
+                                <strong class="text-uppercase">{{ patient.nom_complet }}</strong>
+                                {% if patient.id|stringformat:"s" in analyses_du_jour %}
+                                    <span class="badge rounded-pill bg-danger ms-2 animate-pulse">
+                                        <i class="bi bi-bell-fill"></i> Analyse
+                                    </span>
+                                {% endif %}
                             </td>
+                            <td>{{ patient.date_creation|date:"d/m/Y" }}</td>
                             <td class="text-center">
-                                <a href="{% url 'detail_patient' patient.pk %}" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-eye"></i> Dossier Complet
+                                <a href="{% url 'detail_patient' patient.pk %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-folder2-open"></i> Ouvrir
                                 </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">Aucun dossier trouvé.</td>
+                            <td colspan="4" class="text-center py-4 text-muted">Aucun patient trouvé.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            {% if patients.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center pagination-sm">
+                    
+                    {% if patients.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                <i class="bi bi-chevron-left"></i> Précédent
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Précédent</span></li>
+                    {% endif %}
+
+                    {% for num in patients.paginator.page_range %}
+                        {% if patients.number == num %}
+                            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > patients.number|add:'-3' and num < patients.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if patients.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ patients.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">
+                                Suivant <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">Suivant</span></li>
+                    {% endif %}
+                    
+                </ul>
+            </nav>
+            <div class="text-center text-muted small">
+                Page {{ patients.number }} sur {{ patients.paginator.num_pages }}
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+<style>
+    .animate-pulse {
+        animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+    .pagination .page-link {
+        color: #0d6efd;
+        border-radius: 5px;
+        margin: 0 2px;
+    }
+    .pagination .page-item.active .page-link {
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+</style>
 {% endblock %}

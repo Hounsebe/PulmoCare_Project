@@ -72,6 +72,7 @@ class AnalyseIA(models.Model):
     date_analyse = models.DateTimeField(auto_now_add=True)
     avis_medecin = models.TextField(blank=True)
     est_valide = models.BooleanField(default=False)
+    consulte_par_medecin = models.BooleanField(default=False)
 
     def simuler_ia(self):
         """
